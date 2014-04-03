@@ -98,7 +98,7 @@ module Redmine::Scm::Adapters
     
     # Returns an Entries collection
     # or nil if the given path doesn't exist in the repository
-    def entries(path=nil, identifier=nil)
+    def entries(path=nil, identifier=nil, options={})
       path ||= ''
       identifier = (identifier and identifier.to_i > 0) ? identifier.to_i : "HEAD"
       entries = Entries.new
@@ -135,8 +135,8 @@ module Redmine::Scm::Adapters
     
     def revisions(path=nil, identifier_from=nil, identifier_to=nil, options={})
       path ||= ''
-      identifier_from = (identifier_from and identifier_from.to_i >= 0) ? identifier_from.to_i : "HEAD"
-      identifier_to = (identifier_to and identifier_to.to_i >= 0) ? identifier_to.to_i : 0
+      identifier_from = (identifier_from && identifier_from.to_i >= 0) ? identifier_from.to_i : "HEAD"
+      identifier_to = (identifier_to && identifier_to.to_i >= 0) ? identifier_to.to_i : 0
       revisions = Revisions.new
       begin
         ctx.log(target(path), identifier_from, 
@@ -170,7 +170,7 @@ module Redmine::Scm::Adapters
     end
     
     
-    def diff(path, identifier_from, identifier_to=nil, type="inline")
+    def diff(path, identifier_from, identifier_to=nil)
       path ||= ''
       identifier_from = (identifier_from and identifier_from.to_i > 0) ? identifier_from.to_i : ''
       identifier_to = (identifier_to and identifier_to.to_i > 0) ? identifier_to.to_i : (identifier_from.to_i - 1)
@@ -202,7 +202,7 @@ module Redmine::Scm::Adapters
       blame = Annotate.new
       ctx.blame(target(path), 
                 nil, identifier) do |line_no, revision, author, date, line|
-        blame.add_line(line, Revision.new(:identifier => revision.to_i, 
+        blame.add_line(line, Revision.new(:identifier => revision.to_s, 
                                           :author => author,
                                           :time => date))
       end
