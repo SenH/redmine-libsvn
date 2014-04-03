@@ -147,9 +147,11 @@ module Redmine::Scm::Adapters
           paths = []
           changed_paths.each do |path, change|
             paths << {:action => change.action,
-              :path => path,
-              :from_path => change.copyfrom_path,
-              :from_revision => change.copyfrom_rev
+              # Duplicate objects to clear the freeze flag
+              :path => path.dup,
+              :from_path => (change.copyfrom_path.nil?) ? nil : change.copyfrom_path.dup,
+              # Changes#from_revision is a string
+              :from_revision => (change.copyfrom_rev == -1) ? nil : change.copyfrom_rev.to_s
             }
           end unless changed_paths.nil?
         paths.sort! { |x,y| x[:path] <=> y[:path] }
